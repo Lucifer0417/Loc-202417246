@@ -1,0 +1,9 @@
+# Bỏ qua các file biên dịch
+*.class
+bin/
+
+# Bỏ qua các file cấu hình của Eclipse
+.settings/
+.project
+.classpath
+.metadata/

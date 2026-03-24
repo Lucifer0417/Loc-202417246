@@ -1,0 +1,7 @@
+Bài 6.1:
+	1. Điều gì xảy ra nếu người dùng chọn "Cancel"?
+	Hộp thoại kết quả vẫn in ra dòng chữ "You've chosen: No
+	
+	2. Làm thế nào để tùy chỉnh các tùy chọn cho người dùng (ví dụ: chỉ hiện Yes/No, hoặc đổi thành "I do" và "I don't")?
+	Để chỉ hiện 2 nút Yes và No: Ta thêm tham số JOptionPane.YES_NO_OPTION vào hàm showConfirmDialog. Lệnh sẽ sửa thành: JOptionPane.showConfirmDialog(null, "Câu hỏi", "Tiêu đề", JOptionPane.YES_NO_OPTION);
+	Để đổi chữ thành "I do" và "I don't": Ta không dùng showConfirmDialog nữa mà dùng hàm JOptionPane.showOptionDialog.
