@@ -1,0 +1,1 @@
+No, Java does not allow this
