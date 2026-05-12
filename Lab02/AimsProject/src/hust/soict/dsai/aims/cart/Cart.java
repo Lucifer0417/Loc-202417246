@@ -1,115 +1,96 @@
 package hust.soict.dsai.aims.cart;
-import hust.soict.dsai.aims.disc.DigitalVideoDisc;
+
+import java.util.ArrayList;
+import hust.soict.dsai.aims.media.Media;
 
 public class Cart {
-    public static final int MAX_NUMBERS_ORDERED = 20; 
-    private DigitalVideoDisc itemsOrdered[] = new DigitalVideoDisc[MAX_NUMBERS_ORDERED];
-    private int qtyOrdered = 0; 
+    // Dung ArrayList de chua cac loai Media (Book, DVD, CD...) linh hoat hon Mang (Array)
+    private ArrayList<Media> itemsOrdered = new ArrayList<Media>();
 
-    // --- 1. THEM DIA (METHOD OVERLOADING) ---
-    
-    // Ham 1: Them 1 dia (Giong y het Lab 02)
-    public void addDigitalVideoDisc(DigitalVideoDisc disc) {
-        if (qtyOrdered == MAX_NUMBERS_ORDERED) { 
-            System.out.println("The cart is almost full. Cannot add more.");
+    // Them Media vao gio hang
+    public void addMedia(Media media) {
+        if (!itemsOrdered.contains(media)) {
+            itemsOrdered.add(media);
+            System.out.println(media.getTitle() + " has been added to the cart.");
         } else {
-            itemsOrdered[qtyOrdered] = disc;
-            qtyOrdered++;
-            System.out.println("The disc " + disc.getTitle() + " has been added.");
+            System.out.println(media.getTitle() + " is already in the cart.");
         }
     }
 
-    // Ham 2: Them N-dia thong qua mot mang (Array) - [Phan 2.1 cua Lab]
-    public void addDigitalVideoDisc(DigitalVideoDisc[] dvdList) {
-        for (DigitalVideoDisc disc : dvdList) {
-            if (qtyOrdered == MAX_NUMBERS_ORDERED) {
-                System.out.println("The cart is almost full. Cannot add " + disc.getTitle());
-                break; // Neu day gio thi ngung them
-            } else {
-                itemsOrdered[qtyOrdered] = disc;
-                qtyOrdered++;
-                System.out.println("The disc " + disc.getTitle() + " has been added.");
-            }
+    // Xoa Media khoi gio hang
+    public void removeMedia(Media media) {
+        if (itemsOrdered.contains(media)) {
+            itemsOrdered.remove(media);
+            System.out.println(media.getTitle() + " has been removed from the cart.");
+        } else {
+            System.out.println(media.getTitle() + " is not in the cart.");
         }
     }
 
-    // Ham 3: Them cung luc 2 dia truyen vao - [Phan 2.2 cua Lab]
-    public void addDigitalVideoDisc(DigitalVideoDisc dvd1, DigitalVideoDisc dvd2) {
-        // Goi lai ham 1 de tranh viec code bi lap lai (Don't Repeat Yourself)
-        addDigitalVideoDisc(dvd1);
-        addDigitalVideoDisc(dvd2);
-    }
-
-    // --- 2. XOA DIA VA TINH TIEN ---
-
-    public void removeDigitalVideoDisc(DigitalVideoDisc disc) {
-        if (qtyOrdered == 0) {
-            System.out.println("The cart is empty. Nothing to remove.");
-            return;
-        }
-        for (int i = 0; i < qtyOrdered; i++) {
-            if (itemsOrdered[i] == disc) {
-                for (int j = i; j < qtyOrdered - 1; j++) {
-                    itemsOrdered[j] = itemsOrdered[j + 1];
-                }
-                itemsOrdered[qtyOrdered - 1] = null; 
-                qtyOrdered--;
-                System.out.println("The disc " + disc.getTitle() + " has been removed.");
-                return;
-            }
-        }
-        System.out.println("The disc was not found in the cart.");
-    }
-
+    // Tinh tong tien
     public float totalCost() {
         float total = 0;
-        for (int i = 0; i < qtyOrdered; i++) { 
-            total += itemsOrdered[i].getCost(); 
+        for (Media media : itemsOrdered) {
+            total += media.getCost();
         }
-        return total; 
+        return total;
     }
-    
-    // --- 3. IN GIO HANG VA TIM KIEM (LAB 03) ---
-    
-    // In danh sach gio hang cho dep
+
+    // In danh sach gio hang
     public void print() {
         System.out.println("***********************CART***********************");
         System.out.println("Ordered Items:");
-        for (int i = 0; i < qtyOrdered; i++) {
-            // Goi ham toString() cua class DVD de in
-            System.out.println((i + 1) + ". " + itemsOrdered[i].toString());
+        for (int i = 0; i < itemsOrdered.size(); i++) {
+            System.out.println((i + 1) + ". " + itemsOrdered.get(i).toString());
         }
         System.out.println("Total cost: " + totalCost() + " $");
         System.out.println("***************************************************");
     }
-    
-    // Tim kiem dia theo ID
+
+    // Tim kiem theo ID
     public void searchById(int id) {
         boolean found = false;
-        for (int i = 0; i < qtyOrdered; i++) {
-            if (itemsOrdered[i].getId() == id) {
-                System.out.println("Found match DVD: " + itemsOrdered[i].toString());
+        for (Media media : itemsOrdered) {
+            if (media.getId() == id) {
+                System.out.println("Found match: " + media.toString());
                 found = true;
-                break; // Tim thay thi thoat vong lap luon
+                break;
             }
         }
         if (!found) {
             System.out.println("No match found for ID: " + id);
         }
     }
-    
-    // Tim kiem dia theo Tieu de
+
+    // Tim kiem theo Tieu de
     public void searchByTitle(String title) {
         boolean found = false;
-        for (int i = 0; i < qtyOrdered; i++) {
-            // Su dung ham isMatch() cua class DVD
-            if (itemsOrdered[i].isMatch(title)) {
-                System.out.println("Found match DVD: " + itemsOrdered[i].toString());
+        for (Media media : itemsOrdered) {
+            // Chu y: Vi phuong thuc isMatch() chua duoc dinh nghia trong Media,
+            // ta tam thoi kiem tra chuoi (contains) truc tiep o day
+            if (media.getTitle().toLowerCase().contains(title.toLowerCase())) {
+                System.out.println("Found match: " + media.toString());
                 found = true;
             }
         }
         if (!found) {
             System.out.println("No match found for Title: " + title);
         }
+    }
+    // Lam sach gio hang sau khi dat hang
+    public void empty() {
+        itemsOrdered.clear();
+    }
+
+    // Sap xep theo Tieu de roi den Gia
+    public void sortByTitleCost() {
+        java.util.Collections.sort(itemsOrdered, Media.COMPARE_BY_TITLE_COST);
+        System.out.println("Cart sorted by Title then Cost.");
+    }
+
+    // Sap xep theo Gia roi den Tieu de
+    public void sortByCostTitle() {
+        java.util.Collections.sort(itemsOrdered, Media.COMPARE_BY_COST_TITLE);
+        System.out.println("Cart sorted by Cost then Title.");
     }
 }
