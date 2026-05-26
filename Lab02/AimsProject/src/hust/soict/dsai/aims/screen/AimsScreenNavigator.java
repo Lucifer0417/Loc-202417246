@@ -20,19 +20,19 @@ final class AimsScreenNavigator {
     static JMenuBar createMenuBar(JFrame owner, Store store, Cart cart) {
         JMenuBar menuBar = new JMenuBar();
 
-        JMenu options = new JMenu("Options");
-        JMenuItem viewStore = new JMenuItem("View store");
+        JMenu options = new JMenu("Tùy chọn");
+        JMenuItem viewStore = new JMenuItem("Xem cửa hàng");
         viewStore.addActionListener(e -> openStore(owner, store, cart));
 
-        JMenuItem viewCart = new JMenuItem("View cart");
+        JMenuItem viewCart = new JMenuItem("Xem giỏ hàng");
         viewCart.addActionListener(e -> openCart(owner, store, cart));
 
-        JMenu updateStore = new JMenu("Update store");
-        JMenuItem addBook = new JMenuItem("Add Book");
+        JMenu updateStore = new JMenu("Cập nhật cửa hàng");
+        JMenuItem addBook = new JMenuItem("Thêm sách");
         addBook.addActionListener(e -> openAddBook(owner, store, cart));
-        JMenuItem addCd = new JMenuItem("Add CD");
+        JMenuItem addCd = new JMenuItem("Thêm CD");
         addCd.addActionListener(e -> openAddCd(owner, store, cart));
-        JMenuItem addDvd = new JMenuItem("Add DVD");
+        JMenuItem addDvd = new JMenuItem("Thêm DVD");
         addDvd.addActionListener(e -> openAddDvd(owner, store, cart));
 
         updateStore.add(addBook);
@@ -78,15 +78,15 @@ final class AimsScreenNavigator {
     static void playMedia(JFrame owner, Media media) {
         SwingUtilities.invokeLater(() -> {
             if (!(media instanceof Playable)) {
-                JOptionPane.showMessageDialog(owner, "This media cannot be played.");
+                JOptionPane.showMessageDialog(owner, "Sản phẩm này không thể phát.");
                 return;
             }
 
             try {
                 ((Playable) media).play();
-                JOptionPane.showMessageDialog(owner, "Playing: " + media.getTitle());
+                JOptionPane.showMessageDialog(owner, "Đang phát: " + media.getTitle());
             } catch (PlayerException e) {
-                JOptionPane.showMessageDialog(owner, e.getMessage(), "Player error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(owner, e.getMessage(), "Lỗi phát media", JOptionPane.ERROR_MESSAGE);
                 e.printStackTrace();
             }
         });

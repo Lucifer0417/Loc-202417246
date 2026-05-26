@@ -32,17 +32,17 @@ public abstract class AddItemToStoreScreen extends JFrame {
         this.store = store;
         this.cart = cart;
 
-        setTitle("Add " + itemName);
+        setTitle("Thêm " + itemName);
         setJMenuBar(AimsScreenNavigator.createMenuBar(this, store, cart));
         setLayout(new BorderLayout());
 
         formPanel.setBorder(BorderFactory.createEmptyBorder(24, 24, 24, 24));
-        tfTitle = addField("Title");
-        tfCategory = addField("Category");
-        tfCost = addField("Cost");
+        tfTitle = addField("Tiêu đề");
+        tfCategory = addField("Thể loại");
+        tfCost = addField("Giá");
         add(formPanel, BorderLayout.CENTER);
 
-        JButton submit = new JButton("Add " + itemName);
+        JButton submit = new JButton("Thêm " + itemName);
         submit.addActionListener(e -> submit());
         add(submit, BorderLayout.SOUTH);
 
@@ -92,13 +92,13 @@ public abstract class AddItemToStoreScreen extends JFrame {
         try {
             Media media = createMedia();
             store.addMedia(media);
-            JOptionPane.showMessageDialog(this, media.getTitle() + " has been added to the store.");
+            JOptionPane.showMessageDialog(this, "Đã thêm " + media.getTitle() + " vào cửa hàng.");
             AimsScreenNavigator.openStore(this, store, cart);
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Please enter valid numeric values.", "Invalid input",
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập đúng các giá trị số.", "Dữ liệu không hợp lệ",
                     JOptionPane.ERROR_MESSAGE);
         } catch (IllegalArgumentException e) {
-            JOptionPane.showMessageDialog(this, e.getMessage(), "Invalid input", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Dữ liệu không hợp lệ", JOptionPane.ERROR_MESSAGE);
         }
     }
 

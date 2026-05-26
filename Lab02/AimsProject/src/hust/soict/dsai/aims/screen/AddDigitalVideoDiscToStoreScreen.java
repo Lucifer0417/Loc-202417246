@@ -13,8 +13,8 @@ public class AddDigitalVideoDiscToStoreScreen extends AddItemToStoreScreen {
 
     public AddDigitalVideoDiscToStoreScreen(Store store, Cart cart) {
         super(store, cart, "DVD");
-        tfDirector = addField("Director");
-        tfLength = addField("Length");
+        tfDirector = addField("Đạo diễn");
+        tfLength = addField("Thời lượng");
         showScreen();
     }
 

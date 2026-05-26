@@ -52,7 +52,6 @@ public class CartScreen extends JFrame {
     private TextField tfFilter;
     private ComboBox<String> filterMode;
     private Label totalLabel;
-    private Label itemCountLabel;
     private Button playButton;
     private Button removeButton;
 
@@ -60,7 +59,7 @@ public class CartScreen extends JFrame {
         this.store = store;
         this.cart = cart;
 
-        setTitle("AIMS Cart");
+        setTitle("Giỏ hàng AIMS");
         setJMenuBar(AimsScreenNavigator.createMenuBar(this, store, cart));
         setLayout(new BorderLayout());
         add(jfxPanel, BorderLayout.CENTER);
@@ -95,11 +94,11 @@ public class CartScreen extends JFrame {
         VBox header = new VBox(4);
         header.setPadding(new Insets(0, 0, 14, 0));
 
-        Label title = new Label("Shopping Cart");
+        Label title = new Label("Giỏ hàng");
         title.setStyle("-fx-font-family: 'Segoe UI'; -fx-font-size: 34; -fx-font-weight: bold;"
                 + " -fx-text-fill: #212529;");
 
-        Label subtitle = new Label("JavaFX TableView with search, sort, play, remove, and live total.");
+        Label subtitle = new Label("Tìm kiếm, sắp xếp, phát, xóa sản phẩm và theo dõi tổng tiền.");
         subtitle.setStyle("-fx-text-fill: #6c757d; -fx-font-size: 13;");
 
         header.getChildren().addAll(title, subtitle);
@@ -124,25 +123,25 @@ public class CartScreen extends JFrame {
         toolbar.setStyle(STYLE_CARD);
 
         tfFilter = new TextField();
-        tfFilter.setPromptText("Search cart...");
+        tfFilter.setPromptText("Tìm trong giỏ hàng...");
         tfFilter.setPrefColumnCount(24);
         tfFilter.textProperty().addListener((observable, oldValue, newValue) -> applyFilter());
 
         filterMode = new ComboBox<String>();
-        filterMode.getItems().addAll("All", "ID", "Title", "Category");
-        filterMode.getSelectionModel().select("All");
+        filterMode.getItems().addAll("Tất cả", "Mã", "Tiêu đề", "Thể loại");
+        filterMode.getSelectionModel().select("Tất cả");
         filterMode.valueProperty().addListener((observable, oldValue, newValue) -> applyFilter());
 
-        Button sortTitle = secondaryButton("Sort title");
+        Button sortTitle = secondaryButton("Sắp xếp tên");
         sortTitle.setOnAction(event -> sortByTitle());
 
-        Button sortCostLow = secondaryButton("Cost low-high");
+        Button sortCostLow = secondaryButton("Giá tăng dần");
         sortCostLow.setOnAction(event -> sortByCost(true));
 
-        Button sortCostHigh = secondaryButton("Cost high-low");
+        Button sortCostHigh = secondaryButton("Giá giảm dần");
         sortCostHigh.setOnAction(event -> sortByCost(false));
 
-        toolbar.getChildren().addAll(new Label("Search"), tfFilter, new Label("By"), filterMode,
+        toolbar.getChildren().addAll(new Label("Tìm kiếm"), tfFilter, new Label("Theo"), filterMode,
                 sortTitle, sortCostLow, sortCostHigh);
         return toolbar;
     }
@@ -152,21 +151,21 @@ public class CartScreen extends JFrame {
         tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
         tableView.setStyle("-fx-background-color: white; -fx-border-color: #dee2e6;");
 
-        TableColumn<Media, Integer> idColumn = new TableColumn<Media, Integer>("ID");
+        TableColumn<Media, Integer> idColumn = new TableColumn<Media, Integer>("Mã");
         idColumn.setCellValueFactory(data -> new ReadOnlyObjectWrapper<Integer>(data.getValue().getId()));
         idColumn.setMaxWidth(80);
 
-        TableColumn<Media, String> titleColumn = new TableColumn<Media, String>("Title");
+        TableColumn<Media, String> titleColumn = new TableColumn<Media, String>("Tiêu đề");
         titleColumn.setCellValueFactory(data -> new ReadOnlyObjectWrapper<String>(data.getValue().getTitle()));
 
-        TableColumn<Media, String> categoryColumn = new TableColumn<Media, String>("Category");
+        TableColumn<Media, String> categoryColumn = new TableColumn<Media, String>("Thể loại");
         categoryColumn.setCellValueFactory(data -> new ReadOnlyObjectWrapper<String>(data.getValue().getCategory()));
 
-        TableColumn<Media, String> typeColumn = new TableColumn<Media, String>("Type");
+        TableColumn<Media, String> typeColumn = new TableColumn<Media, String>("Loại");
         typeColumn.setCellValueFactory(data -> new ReadOnlyObjectWrapper<String>(
-                data.getValue().getClass().getSimpleName()));
+                getDisplayType(data.getValue())));
 
-        TableColumn<Media, Float> costColumn = new TableColumn<Media, Float>("Cost");
+        TableColumn<Media, Float> costColumn = new TableColumn<Media, Float>("Giá");
         costColumn.setCellValueFactory(data -> new ReadOnlyObjectWrapper<Float>(data.getValue().getCost()));
         costColumn.setComparator(Comparator.naturalOrder());
 
@@ -188,10 +187,10 @@ public class CartScreen extends JFrame {
         HBox actionBar = new HBox(10);
         actionBar.setAlignment(Pos.CENTER_RIGHT);
 
-        playButton = primaryButton("Play");
+        playButton = primaryButton("Phát");
         playButton.setOnAction(event -> playSelectedMedia());
 
-        removeButton = dangerButton("Remove");
+        removeButton = dangerButton("Xóa");
         removeButton.setOnAction(event -> removeSelectedMedia());
 
         actionBar.getChildren().addAll(playButton, removeButton);
@@ -204,11 +203,8 @@ public class CartScreen extends JFrame {
         summary.setPadding(new Insets(16));
         summary.setStyle(STYLE_CARD);
 
-        Label title = new Label("Order Summary");
+        Label title = new Label("Tổng đơn hàng");
         title.setStyle("-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #212529;");
-
-        itemCountLabel = new Label();
-        itemCountLabel.setStyle("-fx-text-fill: #6c757d;");
 
         totalLabel = new Label();
         totalLabel.setStyle("-fx-font-size: 28; -fx-font-weight: bold; -fx-text-fill: #198754;");
@@ -216,11 +212,11 @@ public class CartScreen extends JFrame {
         Region spacer = new Region();
         VBox.setVgrow(spacer, Priority.ALWAYS);
 
-        Button placeOrderButton = successButton("Place Order");
+        Button placeOrderButton = successButton("Đặt hàng");
         placeOrderButton.setMaxWidth(Double.MAX_VALUE);
         placeOrderButton.setOnAction(event -> placeOrder());
 
-        summary.getChildren().addAll(title, itemCountLabel, totalLabel, spacer, placeOrderButton);
+        summary.getChildren().addAll(title, totalLabel, spacer, placeOrderButton);
         return summary;
     }
 
@@ -242,13 +238,13 @@ public class CartScreen extends JFrame {
             String category = media.getCategory() == null ? "" : media.getCategory().toLowerCase();
             String type = media.getClass().getSimpleName().toLowerCase();
 
-            if ("ID".equals(mode)) {
+            if ("Mã".equals(mode)) {
                 return id.contains(filter);
             }
-            if ("Title".equals(mode)) {
+            if ("Tiêu đề".equals(mode)) {
                 return title.contains(filter);
             }
-            if ("Category".equals(mode)) {
+            if ("Thể loại".equals(mode)) {
                 return category.contains(filter);
             }
             return id.contains(filter) || title.contains(filter) || category.contains(filter) || type.contains(filter);
@@ -308,7 +304,7 @@ public class CartScreen extends JFrame {
         if (cart.getItemsOrdered().isEmpty()) {
             javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
                     javafx.scene.control.Alert.AlertType.INFORMATION,
-                    "Your cart is empty.");
+                    "Giỏ hàng đang trống.");
             alert.setHeaderText(null);
             alert.showAndWait();
             return;
@@ -321,17 +317,29 @@ public class CartScreen extends JFrame {
 
         javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
                 javafx.scene.control.Alert.AlertType.INFORMATION,
-                "An order has been created successfully.");
+                "Đã tạo đơn hàng thành công.");
         alert.setHeaderText(null);
         alert.showAndWait();
     }
 
     private void updateSummary() {
-        if (itemCountLabel == null || totalLabel == null) {
+        if (totalLabel == null) {
             return;
         }
-        itemCountLabel.setText(cart.getItemsOrdered().size() + " item(s) in cart");
         totalLabel.setText(String.format("%.2f $", cart.totalCost()));
+    }
+
+    private String getDisplayType(Media media) {
+        if (media instanceof hust.soict.dsai.aims.media.Book) {
+            return "Sách";
+        }
+        if (media instanceof hust.soict.dsai.aims.media.CompactDisc) {
+            return "CD";
+        }
+        if (media instanceof hust.soict.dsai.aims.media.DigitalVideoDisc) {
+            return "DVD";
+        }
+        return "Media";
     }
 
     private Button primaryButton(String text) {

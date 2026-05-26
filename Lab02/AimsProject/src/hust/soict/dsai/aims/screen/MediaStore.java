@@ -36,7 +36,7 @@ public class MediaStore extends JPanel {
         setPreferredSize(new Dimension(260, 190));
         AimsUi.surface(this);
 
-        JLabel type = new JLabel(media.getClass().getSimpleName(), SwingConstants.LEFT);
+        JLabel type = new JLabel(getDisplayType(media), SwingConstants.LEFT);
         type.setForeground(AimsUi.MUTED);
         type.setFont(new Font("Segoe UI", Font.PLAIN, 12));
 
@@ -44,7 +44,7 @@ public class MediaStore extends JPanel {
         title.setFont(new Font("Segoe UI", Font.BOLD, 16));
         title.setForeground(AimsUi.TEXT);
 
-        JLabel category = new JLabel(media.getCategory() == null ? "No category" : media.getCategory());
+        JLabel category = new JLabel(media.getCategory() == null ? "Chưa có thể loại" : media.getCategory());
         category.setForeground(AimsUi.MUTED);
 
         JLabel cost = new JLabel(String.format("%.2f $", media.getCost()), SwingConstants.LEFT);
@@ -60,12 +60,12 @@ public class MediaStore extends JPanel {
 
         JPanel buttons = new JPanel(new FlowLayout(FlowLayout.CENTER));
         buttons.setOpaque(false);
-        JButton addToCart = AimsUi.button("Add to cart", AimsUi.PRIMARY);
+        JButton addToCart = AimsUi.button("Thêm vào giỏ", AimsUi.PRIMARY);
         addToCart.addActionListener(e -> addMediaToCart());
         buttons.add(addToCart);
 
         if (media instanceof Playable) {
-            JButton play = AimsUi.button("Play", new Color(102, 16, 242));
+            JButton play = AimsUi.button("Phát", new Color(102, 16, 242));
             play.addActionListener(e -> AimsScreenNavigator.playMedia((JFrame) javax.swing.SwingUtilities
                     .getWindowAncestor(this), media));
             buttons.add(play);
@@ -80,6 +80,19 @@ public class MediaStore extends JPanel {
         if (onCartChanged != null) {
             onCartChanged.run();
         }
-        JOptionPane.showMessageDialog(this, media.getTitle() + " has been added to the cart.");
+        JOptionPane.showMessageDialog(this, "Đã thêm " + media.getTitle() + " vào giỏ hàng.");
+    }
+
+    private String getDisplayType(Media media) {
+        if (media instanceof hust.soict.dsai.aims.media.Book) {
+            return "Sách";
+        }
+        if (media instanceof hust.soict.dsai.aims.media.CompactDisc) {
+            return "CD";
+        }
+        if (media instanceof hust.soict.dsai.aims.media.DigitalVideoDisc) {
+            return "DVD";
+        }
+        return "Media";
     }
 }

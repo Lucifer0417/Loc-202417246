@@ -16,10 +16,10 @@ public class AddCompactDiscToStoreScreen extends AddItemToStoreScreen {
 
     public AddCompactDiscToStoreScreen(Store store, Cart cart) {
         super(store, cart, "CD");
-        tfDirector = addField("Director");
-        tfLength = addField("Default track length");
-        tfArtist = addField("Artist");
-        tfTracks = addField("Tracks (title:length; title:length)");
+        tfDirector = addField("Đạo diễn");
+        tfLength = addField("Thời lượng mặc định");
+        tfArtist = addField("Nghệ sĩ");
+        tfTracks = addField("Danh sách track (tên:thời lượng; tên:thời lượng)");
         showScreen();
     }
 
