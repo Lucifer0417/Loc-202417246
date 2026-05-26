@@ -1,6 +1,8 @@
 package hust.soict.dsai.aims.store;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import hust.soict.dsai.aims.media.Media;
 
@@ -23,5 +25,9 @@ public class Store {
         } else {
             System.out.println(media.getTitle() + " is not in the store.");
         }
+    }
+
+    public List<Media> getItemsInStore() {
+        return Collections.unmodifiableList(itemsInStore);
     }
 }

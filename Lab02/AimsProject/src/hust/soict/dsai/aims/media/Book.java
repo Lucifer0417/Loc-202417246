@@ -1,13 +1,22 @@
 package hust.soict.dsai.aims.media;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Book extends Media {
     private List<String> authors = new ArrayList<String>();
 
     public Book() {
-        // TODO Auto-generated constructor stub
+        super();
+    }
+
+    public Book(String title, String category, float cost) {
+        super(title, category, cost);
+    }
+
+    public List<String> getAuthors() {
+        return Collections.unmodifiableList(authors);
     }
 
     // Them tac gia (kiem tra xem da ton tai chua)
@@ -28,5 +37,11 @@ public class Book extends Media {
         } else {
             System.out.println("Author " + authorName + " not found!");
         }
+    }
+
+    @Override
+    public String toString() {
+        return "Book - [" + getTitle() + "] - [" + getCategory() + "] - " + authors + ": ["
+                + getCost() + "] $";
     }
 }

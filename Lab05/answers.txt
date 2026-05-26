@@ -1,0 +1,22 @@
+1.3. Compare Swing and AWT
+
+- AWT top-level container: Frame. Swing top-level container: JFrame.
+- AWT components are heavyweight native components. Swing components are lightweight and usually start with J, for example Label/JLabel, Button/JButton, TextField/JTextField.
+- Swing components should be added to the JFrame content pane, while AWT components can be added directly to a Frame.
+- Event handling is similar in both libraries: components fire events and listener classes handle them.
+
+2.2.3. NumberGrid ButtonListener
+
+- Digit buttons append the selected digit to the display.
+- DEL removes the last character when the display is not empty.
+- C clears the whole display.
+
+14. What happens if Aims is not updated to catch PlayerException?
+
+- The compiler reports unhandled checked exceptions at each call to play(), because PlayerException extends Exception.
+- The application must catch PlayerException or declare it with throws. In the GUI implementation, play errors are caught and shown with JOptionPane dialogs.
+
+15. Media equals()
+
+- Two Media objects are considered equal when they have the same title.
+- The implementation checks instanceof before casting, so null and incompatible objects are handled safely.

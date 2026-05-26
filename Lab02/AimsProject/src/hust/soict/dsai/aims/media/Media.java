@@ -1,9 +1,12 @@
 package hust.soict.dsai.aims.media;
 
 import java.util.Comparator; // Them thu vien nay de dung Comparator
+import java.util.Objects;
 
 public abstract class Media {
-    private int id;
+    private static int nbMedia = 0;
+
+    private int id = ++nbMedia;
     private String title;
     private String category;
     private float cost;
@@ -69,6 +72,11 @@ public abstract class Media {
             return false; // Khong phai la Media hoac la null
         }
         Media media = (Media) obj; // Ep kieu Object obj ve Media
-        return this.title != null && this.title.equals(media.getTitle());
+        return Objects.equals(this.title, media.getTitle());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(title);
     }
 }

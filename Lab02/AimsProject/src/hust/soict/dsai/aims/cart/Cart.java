@@ -1,6 +1,9 @@
 package hust.soict.dsai.aims.cart;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import hust.soict.dsai.aims.media.Media;
 
 public class Cart {
@@ -15,6 +18,10 @@ public class Cart {
         } else {
             System.out.println(media.getTitle() + " is already in the cart.");
         }
+    }
+
+    public List<Media> getItemsOrdered() {
+        return Collections.unmodifiableList(itemsOrdered);
     }
 
     // Xoa Media khoi gio hang

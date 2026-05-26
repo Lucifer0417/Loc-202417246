@@ -1,5 +1,7 @@
 package hust.soict.dsai.aims.media;
 
+import hust.soict.dsai.aims.exception.PlayerException;
+
 public class DigitalVideoDisc extends  Disc implements Playable {
 
     // Khong can khai bao cac bien id, title, category, cost, director, length nua
@@ -32,7 +34,10 @@ public class DigitalVideoDisc extends  Disc implements Playable {
         return getTitle().toLowerCase().contains(title.toLowerCase());
     }
     @Override
-    public void play() {
+    public void play() throws PlayerException {
+        if (this.getLength() <= 0) {
+            throw new PlayerException("ERROR: DVD length is non-positive!");
+        }
         System.out.println("Playing DVD: " + this.getTitle());
         System.out.println("DVD length: " + this.getLength());
     }
