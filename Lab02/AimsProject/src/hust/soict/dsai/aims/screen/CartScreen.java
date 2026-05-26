@@ -1,173 +1,287 @@
 package hust.soict.dsai.aims.screen;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Font;
-import java.awt.GridLayout;
+import java.util.Comparator;
 
-import javax.swing.BorderFactory;
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.RowFilter;
-import javax.swing.SwingConstants;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableRowSorter;
 
 import hust.soict.dsai.aims.cart.Cart;
 import hust.soict.dsai.aims.media.Media;
 import hust.soict.dsai.aims.media.Playable;
 import hust.soict.dsai.aims.store.Store;
+import javafx.application.Platform;
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
+import javafx.embed.swing.JFXPanel;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 
 public class CartScreen extends JFrame {
+    private static final String STYLE_BACKGROUND = "-fx-background-color: #f5f7fa;";
+    private static final String STYLE_CARD = "-fx-background-color: white; -fx-border-color: #dee2e6;"
+            + " -fx-border-radius: 8; -fx-background-radius: 8;";
+    private static final String STYLE_PRIMARY_BUTTON = "-fx-background-color: #0d6efd; -fx-text-fill: white;"
+            + " -fx-font-weight: bold; -fx-background-radius: 6;";
+    private static final String STYLE_DANGER_BUTTON = "-fx-background-color: #dc3545; -fx-text-fill: white;"
+            + " -fx-font-weight: bold; -fx-background-radius: 6;";
+    private static final String STYLE_SUCCESS_BUTTON = "-fx-background-color: #198754; -fx-text-fill: white;"
+            + " -fx-font-weight: bold; -fx-background-radius: 6;";
+
     private final Store store;
     private final Cart cart;
-    private final CartTableModel tableModel;
-    private final TableRowSorter<CartTableModel> sorter;
+    private final JFXPanel jfxPanel = new JFXPanel();
 
-    private JTable tblMedia;
-    private JButton btnPlay;
-    private JButton btnRemove;
-    private JLabel totalLabel;
-    private JTextField tfFilter;
-    private JRadioButton radioBtnFilterId;
-    private JRadioButton radioBtnFilterTitle;
+    private ObservableList<Media> cartItems;
+    private FilteredList<Media> filteredItems;
+    private TableView<Media> tableView;
+    private TextField tfFilter;
+    private ComboBox<String> filterMode;
+    private Label totalLabel;
+    private Label itemCountLabel;
+    private Button playButton;
+    private Button removeButton;
 
     public CartScreen(Store store, Cart cart) {
         this.store = store;
         this.cart = cart;
-        this.tableModel = new CartTableModel(cart);
-        this.sorter = new TableRowSorter<CartTableModel>(tableModel);
 
         setTitle("AIMS Cart");
         setJMenuBar(AimsScreenNavigator.createMenuBar(this, store, cart));
         setLayout(new BorderLayout());
-        add(createHeader(), BorderLayout.NORTH);
-        add(createCenter(), BorderLayout.CENTER);
-        add(createRight(), BorderLayout.EAST);
+        add(jfxPanel, BorderLayout.CENTER);
 
-        setSize(1024, 768);
+        setSize(1080, 760);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setVisible(true);
-        updateButtonBar();
-        updateTotal();
-    }
 
-    private Component createHeader() {
-        JLabel title = new JLabel("CART", SwingConstants.LEFT);
-        title.setFont(new Font(title.getFont().getName(), Font.PLAIN, 50));
-        title.setForeground(Color.CYAN);
-        title.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 10));
-        return title;
-    }
-
-    private Component createCenter() {
-        JPanel center = new JPanel(new BorderLayout(8, 8));
-        center.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
-        JPanel filterPanel = new JPanel();
-        filterPanel.add(new JLabel("Filter:"));
-        tfFilter = new JTextField(24);
-        filterPanel.add(tfFilter);
-
-        radioBtnFilterId = new JRadioButton("By ID", true);
-        radioBtnFilterTitle = new JRadioButton("By Title");
-        ButtonGroup filterGroup = new ButtonGroup();
-        filterGroup.add(radioBtnFilterId);
-        filterGroup.add(radioBtnFilterTitle);
-        filterPanel.add(radioBtnFilterId);
-        filterPanel.add(radioBtnFilterTitle);
-
-        tfFilter.getDocument().addDocumentListener(new SimpleDocumentListener(this::applyFilter));
-        radioBtnFilterId.addActionListener(e -> applyFilter());
-        radioBtnFilterTitle.addActionListener(e -> applyFilter());
-
-        tblMedia = new JTable(tableModel);
-        tblMedia.setRowSorter(sorter);
-        tblMedia.setFillsViewportHeight(true);
-        tblMedia.getSelectionModel().addListSelectionListener(this::selectionChanged);
-
-        JPanel buttonBar = new JPanel();
-        btnPlay = new JButton("Play");
-        btnPlay.addActionListener(e -> playSelectedMedia());
-        btnRemove = new JButton("Remove");
-        btnRemove.addActionListener(e -> removeSelectedMedia());
-        buttonBar.add(btnPlay);
-        buttonBar.add(btnRemove);
-
-        center.add(filterPanel, BorderLayout.NORTH);
-        center.add(new JScrollPane(tblMedia), BorderLayout.CENTER);
-        center.add(buttonBar, BorderLayout.SOUTH);
-        return center;
-    }
-
-    private Component createRight() {
-        JPanel right = new JPanel(new GridLayout(2, 1, 8, 8));
-        right.setBorder(BorderFactory.createEmptyBorder(50, 10, 10, 20));
-
-        totalLabel = new JLabel("", SwingConstants.CENTER);
-        totalLabel.setFont(new Font(totalLabel.getFont().getName(), Font.PLAIN, 24));
-        totalLabel.setForeground(Color.CYAN);
-
-        JButton placeOrder = new JButton("Place Order");
-        placeOrder.setFont(new Font(placeOrder.getFont().getName(), Font.PLAIN, 20));
-        placeOrder.addActionListener(e -> placeOrder());
-
-        right.add(totalLabel);
-        right.add(placeOrder);
-        return right;
-    }
-
-    private void selectionChanged(ListSelectionEvent event) {
-        if (!event.getValueIsAdjusting()) {
-            updateButtonBar();
-        }
-    }
-
-    private void updateButtonBar() {
-        Media selected = getSelectedMedia();
-        boolean hasSelection = selected != null;
-        btnRemove.setVisible(hasSelection);
-        btnPlay.setVisible(hasSelection && selected instanceof Playable);
-        btnRemove.getParent().revalidate();
-        btnRemove.getParent().repaint();
-    }
-
-    private void applyFilter() {
-        String filter = tfFilter.getText().trim().toLowerCase();
-        if (filter.isEmpty()) {
-            sorter.setRowFilter(null);
-            return;
-        }
-
-        sorter.setRowFilter(new RowFilter<CartTableModel, Integer>() {
-            @Override
-            public boolean include(Entry<? extends CartTableModel, ? extends Integer> entry) {
-                Media media = tableModel.getMediaAt(entry.getIdentifier());
-                if (radioBtnFilterId.isSelected()) {
-                    return Integer.toString(media.getId()).contains(filter);
-                }
-                return media.getTitle() != null && media.getTitle().toLowerCase().contains(filter);
-            }
+        Platform.runLater(() -> {
+            Platform.setImplicitExit(false);
+            cartItems = FXCollections.observableArrayList(cart.getItemsOrdered());
+            filteredItems = new FilteredList<Media>(cartItems, media -> true);
+            jfxPanel.setScene(new Scene(createRoot(), 1080, 720));
         });
     }
 
-    private Media getSelectedMedia() {
-        int selectedRow = tblMedia.getSelectedRow();
-        if (selectedRow < 0) {
-            return null;
+    private BorderPane createRoot() {
+        BorderPane root = new BorderPane();
+        root.setStyle(STYLE_BACKGROUND);
+        root.setPadding(new Insets(18, 24, 24, 24));
+
+        root.setTop(createHeader());
+        root.setCenter(createCenter());
+        root.setRight(createSummaryPanel());
+        updateSummary();
+        updateButtonBar();
+        return root;
+    }
+
+    private VBox createHeader() {
+        VBox header = new VBox(4);
+        header.setPadding(new Insets(0, 0, 14, 0));
+
+        Label title = new Label("Shopping Cart");
+        title.setStyle("-fx-font-family: 'Segoe UI'; -fx-font-size: 34; -fx-font-weight: bold;"
+                + " -fx-text-fill: #212529;");
+
+        Label subtitle = new Label("JavaFX TableView with search, sort, play, remove, and live total.");
+        subtitle.setStyle("-fx-text-fill: #6c757d; -fx-font-size: 13;");
+
+        header.getChildren().addAll(title, subtitle);
+        return header;
+    }
+
+    private VBox createCenter() {
+        VBox center = new VBox(12);
+        center.setPadding(new Insets(0, 12, 0, 0));
+
+        center.getChildren().add(createToolbar());
+        center.getChildren().add(createTable());
+        center.getChildren().add(createActionBar());
+        VBox.setVgrow(tableView, Priority.ALWAYS);
+        return center;
+    }
+
+    private HBox createToolbar() {
+        HBox toolbar = new HBox(10);
+        toolbar.setAlignment(Pos.CENTER_LEFT);
+        toolbar.setPadding(new Insets(12));
+        toolbar.setStyle(STYLE_CARD);
+
+        tfFilter = new TextField();
+        tfFilter.setPromptText("Search cart...");
+        tfFilter.setPrefColumnCount(24);
+        tfFilter.textProperty().addListener((observable, oldValue, newValue) -> applyFilter());
+
+        filterMode = new ComboBox<String>();
+        filterMode.getItems().addAll("All", "ID", "Title", "Category");
+        filterMode.getSelectionModel().select("All");
+        filterMode.valueProperty().addListener((observable, oldValue, newValue) -> applyFilter());
+
+        Button sortTitle = secondaryButton("Sort title");
+        sortTitle.setOnAction(event -> sortByTitle());
+
+        Button sortCostLow = secondaryButton("Cost low-high");
+        sortCostLow.setOnAction(event -> sortByCost(true));
+
+        Button sortCostHigh = secondaryButton("Cost high-low");
+        sortCostHigh.setOnAction(event -> sortByCost(false));
+
+        toolbar.getChildren().addAll(new Label("Search"), tfFilter, new Label("By"), filterMode,
+                sortTitle, sortCostLow, sortCostHigh);
+        return toolbar;
+    }
+
+    private TableView<Media> createTable() {
+        tableView = new TableView<Media>();
+        tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
+        tableView.setStyle("-fx-background-color: white; -fx-border-color: #dee2e6;");
+
+        TableColumn<Media, Integer> idColumn = new TableColumn<Media, Integer>("ID");
+        idColumn.setCellValueFactory(data -> new ReadOnlyObjectWrapper<Integer>(data.getValue().getId()));
+        idColumn.setMaxWidth(80);
+
+        TableColumn<Media, String> titleColumn = new TableColumn<Media, String>("Title");
+        titleColumn.setCellValueFactory(data -> new ReadOnlyObjectWrapper<String>(data.getValue().getTitle()));
+
+        TableColumn<Media, String> categoryColumn = new TableColumn<Media, String>("Category");
+        categoryColumn.setCellValueFactory(data -> new ReadOnlyObjectWrapper<String>(data.getValue().getCategory()));
+
+        TableColumn<Media, String> typeColumn = new TableColumn<Media, String>("Type");
+        typeColumn.setCellValueFactory(data -> new ReadOnlyObjectWrapper<String>(
+                data.getValue().getClass().getSimpleName()));
+
+        TableColumn<Media, Float> costColumn = new TableColumn<Media, Float>("Cost");
+        costColumn.setCellValueFactory(data -> new ReadOnlyObjectWrapper<Float>(data.getValue().getCost()));
+        costColumn.setComparator(Comparator.naturalOrder());
+
+        tableView.getColumns().add(idColumn);
+        tableView.getColumns().add(titleColumn);
+        tableView.getColumns().add(categoryColumn);
+        tableView.getColumns().add(typeColumn);
+        tableView.getColumns().add(costColumn);
+
+        SortedList<Media> sortedItems = new SortedList<Media>(filteredItems);
+        sortedItems.comparatorProperty().bind(tableView.comparatorProperty());
+        tableView.setItems(sortedItems);
+        tableView.getSelectionModel().selectedItemProperty()
+                .addListener((observable, oldValue, newValue) -> updateButtonBar());
+        return tableView;
+    }
+
+    private HBox createActionBar() {
+        HBox actionBar = new HBox(10);
+        actionBar.setAlignment(Pos.CENTER_RIGHT);
+
+        playButton = primaryButton("Play");
+        playButton.setOnAction(event -> playSelectedMedia());
+
+        removeButton = dangerButton("Remove");
+        removeButton.setOnAction(event -> removeSelectedMedia());
+
+        actionBar.getChildren().addAll(playButton, removeButton);
+        return actionBar;
+    }
+
+    private VBox createSummaryPanel() {
+        VBox summary = new VBox(12);
+        summary.setPrefWidth(260);
+        summary.setPadding(new Insets(16));
+        summary.setStyle(STYLE_CARD);
+
+        Label title = new Label("Order Summary");
+        title.setStyle("-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #212529;");
+
+        itemCountLabel = new Label();
+        itemCountLabel.setStyle("-fx-text-fill: #6c757d;");
+
+        totalLabel = new Label();
+        totalLabel.setStyle("-fx-font-size: 28; -fx-font-weight: bold; -fx-text-fill: #198754;");
+
+        Region spacer = new Region();
+        VBox.setVgrow(spacer, Priority.ALWAYS);
+
+        Button placeOrderButton = successButton("Place Order");
+        placeOrderButton.setMaxWidth(Double.MAX_VALUE);
+        placeOrderButton.setOnAction(event -> placeOrder());
+
+        summary.getChildren().addAll(title, itemCountLabel, totalLabel, spacer, placeOrderButton);
+        return summary;
+    }
+
+    private void applyFilter() {
+        if (filteredItems == null) {
+            return;
         }
-        int modelRow = tblMedia.convertRowIndexToModel(selectedRow);
-        return tableModel.getMediaAt(modelRow);
+
+        String filter = tfFilter.getText() == null ? "" : tfFilter.getText().trim().toLowerCase();
+        if (filter.isEmpty()) {
+            filteredItems.setPredicate(media -> true);
+            return;
+        }
+
+        filteredItems.setPredicate(media -> {
+            String mode = filterMode.getSelectionModel().getSelectedItem();
+            String id = Integer.toString(media.getId());
+            String title = media.getTitle() == null ? "" : media.getTitle().toLowerCase();
+            String category = media.getCategory() == null ? "" : media.getCategory().toLowerCase();
+            String type = media.getClass().getSimpleName().toLowerCase();
+
+            if ("ID".equals(mode)) {
+                return id.contains(filter);
+            }
+            if ("Title".equals(mode)) {
+                return title.contains(filter);
+            }
+            if ("Category".equals(mode)) {
+                return category.contains(filter);
+            }
+            return id.contains(filter) || title.contains(filter) || category.contains(filter) || type.contains(filter);
+        });
+    }
+
+    private void sortByTitle() {
+        cartItems.sort(Comparator.comparing(Media::getTitle, Comparator.nullsLast(String::compareToIgnoreCase)));
+        tableView.getSortOrder().clear();
+    }
+
+    private void sortByCost(boolean ascending) {
+        Comparator<Media> comparator = Comparator.comparing(Media::getCost);
+        if (!ascending) {
+            comparator = comparator.reversed();
+        }
+        cartItems.sort(comparator.thenComparing(Media::getTitle, Comparator.nullsLast(String::compareToIgnoreCase)));
+        tableView.getSortOrder().clear();
+    }
+
+    private Media getSelectedMedia() {
+        return tableView.getSelectionModel().getSelectedItem();
+    }
+
+    private void updateButtonBar() {
+        if (playButton == null || removeButton == null || tableView == null) {
+            return;
+        }
+
+        Media selected = getSelectedMedia();
+        boolean hasSelection = selected != null;
+        removeButton.setDisable(!hasSelection);
+        playButton.setDisable(!hasSelection || !(selected instanceof Playable));
     }
 
     private void playSelectedMedia() {
@@ -179,81 +293,72 @@ public class CartScreen extends JFrame {
 
     private void removeSelectedMedia() {
         Media selected = getSelectedMedia();
-        if (selected != null) {
-            cart.removeMedia(selected);
-            refreshCart();
+        if (selected == null) {
+            return;
         }
+
+        cart.removeMedia(selected);
+        cartItems.setAll(cart.getItemsOrdered());
+        applyFilter();
+        updateSummary();
+        updateButtonBar();
     }
 
     private void placeOrder() {
         if (cart.getItemsOrdered().isEmpty()) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Your cart is empty.");
+            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
+                    javafx.scene.control.Alert.AlertType.INFORMATION,
+                    "Your cart is empty.");
+            alert.setHeaderText(null);
+            alert.showAndWait();
             return;
         }
+
         cart.empty();
-        refreshCart();
-        javax.swing.JOptionPane.showMessageDialog(this, "An order has been created successfully.");
-    }
-
-    private void refreshCart() {
-        tableModel.fireTableDataChanged();
-        applyFilter();
-        updateTotal();
+        cartItems.clear();
+        updateSummary();
         updateButtonBar();
+
+        javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
+                javafx.scene.control.Alert.AlertType.INFORMATION,
+                "An order has been created successfully.");
+        alert.setHeaderText(null);
+        alert.showAndWait();
     }
 
-    private void updateTotal() {
-        totalLabel.setText(String.format("Total: %.2f $", cart.totalCost()));
+    private void updateSummary() {
+        if (itemCountLabel == null || totalLabel == null) {
+            return;
+        }
+        itemCountLabel.setText(cart.getItemsOrdered().size() + " item(s) in cart");
+        totalLabel.setText(String.format("%.2f $", cart.totalCost()));
     }
 
-    private static class CartTableModel extends AbstractTableModel {
-        private static final String[] COLUMNS = {"Title", "Category", "Cost"};
-        private final Cart cart;
+    private Button primaryButton(String text) {
+        Button button = new Button(text);
+        button.setStyle(STYLE_PRIMARY_BUTTON);
+        button.setPadding(new Insets(8, 16, 8, 16));
+        return button;
+    }
 
-        CartTableModel(Cart cart) {
-            this.cart = cart;
-        }
+    private Button secondaryButton(String text) {
+        Button button = new Button(text);
+        button.setStyle("-fx-background-color: #495057; -fx-text-fill: white; -fx-background-radius: 6;");
+        button.setPadding(new Insets(8, 14, 8, 14));
+        return button;
+    }
 
-        @Override
-        public int getRowCount() {
-            return cart.getItemsOrdered().size();
-        }
+    private Button dangerButton(String text) {
+        Button button = new Button(text);
+        button.setStyle(STYLE_DANGER_BUTTON);
+        button.setPadding(new Insets(8, 16, 8, 16));
+        return button;
+    }
 
-        @Override
-        public int getColumnCount() {
-            return COLUMNS.length;
-        }
-
-        @Override
-        public String getColumnName(int column) {
-            return COLUMNS[column];
-        }
-
-        @Override
-        public Class<?> getColumnClass(int columnIndex) {
-            if (columnIndex == 2) {
-                return Float.class;
-            }
-            return String.class;
-        }
-
-        @Override
-        public Object getValueAt(int rowIndex, int columnIndex) {
-            Media media = getMediaAt(rowIndex);
-            switch (columnIndex) {
-                case 0:
-                    return media.getTitle();
-                case 1:
-                    return media.getCategory();
-                case 2:
-                    return media.getCost();
-                default:
-                    return "";
-            }
-        }
-
-        Media getMediaAt(int rowIndex) {
-            return cart.getItemsOrdered().get(rowIndex);
-        }
+    private Button successButton(String text) {
+        Button button = new Button(text);
+        button.setStyle(STYLE_SUCCESS_BUTTON);
+        button.setPadding(new Insets(10, 16, 10, 16));
+        return button;
     }
 }
