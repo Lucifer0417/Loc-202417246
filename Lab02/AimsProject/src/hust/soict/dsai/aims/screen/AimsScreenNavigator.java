@@ -67,24 +67,28 @@ final class AimsScreenNavigator {
     }
 
     private static void switchTo(JFrame owner, Runnable nextScreen) {
-        if (owner != null) {
-            owner.dispose();
-        }
-        SwingUtilities.invokeLater(nextScreen);
+        SwingUtilities.invokeLater(() -> {
+            if (owner != null) {
+                owner.dispose();
+            }
+            nextScreen.run();
+        });
     }
 
     static void playMedia(JFrame owner, Media media) {
-        if (!(media instanceof Playable)) {
-            JOptionPane.showMessageDialog(owner, "This media cannot be played.");
-            return;
-        }
+        SwingUtilities.invokeLater(() -> {
+            if (!(media instanceof Playable)) {
+                JOptionPane.showMessageDialog(owner, "This media cannot be played.");
+                return;
+            }
 
-        try {
-            ((Playable) media).play();
-            JOptionPane.showMessageDialog(owner, "Playing: " + media.getTitle());
-        } catch (PlayerException e) {
-            JOptionPane.showMessageDialog(owner, e.getMessage(), "Player error", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
-        }
+            try {
+                ((Playable) media).play();
+                JOptionPane.showMessageDialog(owner, "Playing: " + media.getTitle());
+            } catch (PlayerException e) {
+                JOptionPane.showMessageDialog(owner, e.getMessage(), "Player error", JOptionPane.ERROR_MESSAGE);
+                e.printStackTrace();
+            }
+        });
     }
 }

@@ -1,39 +1,57 @@
 package hust.soict.dsai.aims.screen;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import javax.swing.BorderFactory;
-import javax.swing.JComboBox;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
 
 import hust.soict.dsai.aims.cart.Cart;
 import hust.soict.dsai.aims.media.Book;
 import hust.soict.dsai.aims.media.CompactDisc;
 import hust.soict.dsai.aims.media.DigitalVideoDisc;
 import hust.soict.dsai.aims.media.Media;
+import hust.soict.dsai.aims.media.Playable;
 import hust.soict.dsai.aims.store.Store;
+import javafx.application.Platform;
+import javafx.embed.swing.JFXPanel;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.TilePane;
+import javafx.scene.layout.VBox;
 
 public class StoreScreen extends JFrame {
+    private static final String STYLE_BACKGROUND = "-fx-background-color: #f5f7fa;";
+    private static final String STYLE_CARD = "-fx-background-color: white; -fx-border-color: #dee2e6;"
+            + " -fx-border-radius: 8; -fx-background-radius: 8;";
+    private static final String STYLE_PRIMARY_BUTTON = "-fx-background-color: #0d6efd; -fx-text-fill: white;"
+            + " -fx-font-weight: bold; -fx-background-radius: 6;";
+    private static final String STYLE_SECONDARY_BUTTON = "-fx-background-color: #495057; -fx-text-fill: white;"
+            + " -fx-font-weight: bold; -fx-background-radius: 6;";
+    private static final String STYLE_PURPLE_BUTTON = "-fx-background-color: #6610f2; -fx-text-fill: white;"
+            + " -fx-font-weight: bold; -fx-background-radius: 6;";
+
     private final Store store;
     private final Cart cart;
+    private final JFXPanel jfxPanel = new JFXPanel();
 
-    private JPanel mediaGrid;
-    private JLabel resultLabel;
-    private JLabel cartSummaryLabel;
-    private JTextField searchField;
-    private JComboBox<String> typeFilter;
-    private JComboBox<String> sortBox;
+    private TilePane mediaGrid;
+    private Label resultLabel;
+    private Label cartSummaryLabel;
+    private TextField searchField;
+    private ComboBox<String> typeFilter;
+    private ComboBox<String> sortBox;
 
     public StoreScreen(Store store, Cart cart) {
         this.store = store;
@@ -42,72 +60,101 @@ public class StoreScreen extends JFrame {
         setTitle("AIMS Store");
         setJMenuBar(AimsScreenNavigator.createMenuBar(this, store, cart));
         setLayout(new BorderLayout());
-        getContentPane().setBackground(AimsUi.BACKGROUND);
-        add(createHeader(), BorderLayout.NORTH);
-        add(createCenter(), BorderLayout.CENTER);
+        add(jfxPanel, BorderLayout.CENTER);
 
         setSize(1080, 760);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        refreshStore();
         setVisible(true);
+
+        Platform.runLater(() -> {
+            Platform.setImplicitExit(false);
+            jfxPanel.setScene(new Scene(createRoot(), 1080, 720));
+        });
     }
 
-    private Component createHeader() {
-        JPanel header = new JPanel(new BorderLayout(16, 8));
-        header.setBackground(AimsUi.BACKGROUND);
-        header.setBorder(AimsUi.paddedBorder(18, 24, 10, 24));
+    private BorderPane createRoot() {
+        BorderPane root = new BorderPane();
+        root.setStyle(STYLE_BACKGROUND);
+        root.setPadding(new Insets(18, 24, 24, 24));
+        root.setTop(createHeader());
+        root.setCenter(createCenter());
+        refreshStore();
+        return root;
+    }
 
-        JPanel titlePanel = new JPanel(new GridLayout(2, 1));
-        titlePanel.setOpaque(false);
-        titlePanel.add(AimsUi.screenTitle("AIMS Store"));
-        resultLabel = AimsUi.muted("");
-        titlePanel.add(resultLabel);
+    private VBox createHeader() {
+        VBox header = new VBox(4);
+        header.setPadding(new Insets(0, 0, 14, 0));
 
-        cartSummaryLabel = AimsUi.sectionTitle("");
-        cartSummaryLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+        HBox topRow = new HBox(12);
+        topRow.setAlignment(Pos.CENTER_LEFT);
 
-        header.add(titlePanel, BorderLayout.CENTER);
-        header.add(cartSummaryLabel, BorderLayout.EAST);
+        Label title = new Label("AIMS Store");
+        title.setStyle("-fx-font-family: 'Segoe UI'; -fx-font-size: 34; -fx-font-weight: bold;"
+                + " -fx-text-fill: #212529;");
+
+        cartSummaryLabel = new Label();
+        cartSummaryLabel.setStyle("-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: #198754;");
+
+        Button cartButton = primaryButton("View cart");
+        cartButton.setOnAction(event -> AimsScreenNavigator.openCart(this, store, cart));
+
+        HBox spacer = new HBox();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        topRow.getChildren().addAll(title, spacer, cartSummaryLabel, cartButton);
+
+        resultLabel = new Label();
+        resultLabel.setStyle("-fx-text-fill: #6c757d; -fx-font-size: 13;");
+
+        header.getChildren().addAll(topRow, resultLabel);
         return header;
     }
 
-    private Component createCenter() {
-        JPanel content = new JPanel(new BorderLayout(12, 12));
-        content.setBackground(AimsUi.BACKGROUND);
-        content.setBorder(AimsUi.paddedBorder(0, 24, 24, 24));
-        content.add(createToolbar(), BorderLayout.NORTH);
+    private VBox createCenter() {
+        VBox center = new VBox(12);
+        center.getChildren().add(createToolbar());
 
-        mediaGrid = new JPanel(new GridLayout(0, 3, 12, 12));
-        mediaGrid.setBackground(AimsUi.BACKGROUND);
+        mediaGrid = new TilePane();
+        mediaGrid.setHgap(12);
+        mediaGrid.setVgap(12);
+        mediaGrid.setPrefColumns(3);
+        mediaGrid.setPadding(new Insets(2));
+        mediaGrid.setStyle(STYLE_BACKGROUND);
 
-        JScrollPane scrollPane = new JScrollPane(mediaGrid);
-        scrollPane.setBorder(BorderFactory.createEmptyBorder());
-        scrollPane.getViewport().setBackground(AimsUi.BACKGROUND);
-        content.add(scrollPane, BorderLayout.CENTER);
-        return content;
+        ScrollPane scrollPane = new ScrollPane(mediaGrid);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
+
+        center.getChildren().add(scrollPane);
+        VBox.setVgrow(scrollPane, Priority.ALWAYS);
+        return center;
     }
 
-    private Component createToolbar() {
-        JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
-        toolbar.setBackground(AimsUi.SURFACE);
-        toolbar.setBorder(AimsUi.cardBorder());
+    private HBox createToolbar() {
+        HBox toolbar = new HBox(10);
+        toolbar.setAlignment(Pos.CENTER_LEFT);
+        toolbar.setPadding(new Insets(12));
+        toolbar.setStyle(STYLE_CARD);
 
-        searchField = new JTextField(24);
-        searchField.getDocument().addDocumentListener(new SimpleDocumentListener(this::refreshStore));
+        searchField = new TextField();
+        searchField.setPromptText("Search title, category, or type...");
+        searchField.setPrefColumnCount(28);
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> refreshStore());
 
-        typeFilter = new JComboBox<String>(new String[] {"All types", "Book", "CD", "DVD"});
-        typeFilter.addActionListener(e -> refreshStore());
+        typeFilter = new ComboBox<String>();
+        typeFilter.getItems().addAll("All types", "Book", "CD", "DVD");
+        typeFilter.getSelectionModel().select("All types");
+        typeFilter.valueProperty().addListener((observable, oldValue, newValue) -> refreshStore());
 
-        sortBox = new JComboBox<String>(new String[] {"Title A-Z", "Price low-high", "Price high-low"});
-        sortBox.addActionListener(e -> refreshStore());
+        sortBox = new ComboBox<String>();
+        sortBox.getItems().addAll("Title A-Z", "Price low-high", "Price high-low");
+        sortBox.getSelectionModel().select("Title A-Z");
+        sortBox.valueProperty().addListener((observable, oldValue, newValue) -> refreshStore());
 
-        toolbar.add(new JLabel("Search"));
-        toolbar.add(searchField);
-        toolbar.add(new JLabel("Type"));
-        toolbar.add(typeFilter);
-        toolbar.add(new JLabel("Sort"));
-        toolbar.add(sortBox);
+        toolbar.getChildren().addAll(new Label("Search"), searchField, new Label("Type"), typeFilter,
+                new Label("Sort"), sortBox);
         return toolbar;
     }
 
@@ -117,28 +164,75 @@ public class StoreScreen extends JFrame {
         }
 
         List<Media> visibleMedia = filterAndSortMedia();
-        mediaGrid.removeAll();
+        mediaGrid.getChildren().clear();
 
         if (visibleMedia.isEmpty()) {
-            JLabel empty = AimsUi.muted("No media matches the current filter.");
-            empty.setHorizontalAlignment(SwingConstants.CENTER);
-            mediaGrid.add(empty);
+            Label empty = new Label("No media matches the current filter.");
+            empty.setStyle("-fx-text-fill: #6c757d; -fx-font-size: 14;");
+            mediaGrid.getChildren().add(empty);
         } else {
             for (Media media : visibleMedia) {
-                mediaGrid.add(new MediaStore(media, cart, this::refreshCartSummary));
+                mediaGrid.getChildren().add(createMediaCard(media));
             }
         }
 
         resultLabel.setText(visibleMedia.size() + " item(s) shown from " + store.getItemsInStore().size());
         refreshCartSummary();
-        mediaGrid.revalidate();
-        mediaGrid.repaint();
+    }
+
+    private VBox createMediaCard(Media media) {
+        VBox card = new VBox(10);
+        card.setPrefSize(310, 190);
+        card.setPadding(new Insets(16));
+        card.setStyle(STYLE_CARD);
+
+        Label type = new Label(media.getClass().getSimpleName());
+        type.setStyle("-fx-text-fill: #6c757d; -fx-font-size: 12;");
+
+        Label title = new Label(media.getTitle());
+        title.setWrapText(true);
+        title.setMaxWidth(270);
+        title.setStyle("-fx-text-fill: #212529; -fx-font-size: 17; -fx-font-weight: bold;");
+
+        Label category = new Label(media.getCategory() == null ? "No category" : media.getCategory());
+        category.setStyle("-fx-text-fill: #6c757d;");
+
+        Label cost = new Label(String.format("%.2f $", media.getCost()));
+        cost.setStyle("-fx-text-fill: #198754; -fx-font-size: 20; -fx-font-weight: bold;");
+
+        HBox actions = new HBox(8);
+        actions.setAlignment(Pos.CENTER_LEFT);
+
+        Button addToCart = primaryButton("Add to cart");
+        addToCart.setOnAction(event -> addMediaToCart(media));
+        actions.getChildren().add(addToCart);
+
+        if (media instanceof Playable) {
+            Button play = purpleButton("Play");
+            play.setOnAction(event -> AimsScreenNavigator.playMedia(this, media));
+            actions.getChildren().add(play);
+        }
+
+        VBox spacer = new VBox();
+        VBox.setVgrow(spacer, Priority.ALWAYS);
+
+        card.getChildren().addAll(type, title, category, cost, spacer, actions);
+        return card;
+    }
+
+    private void addMediaToCart(Media media) {
+        cart.addMedia(media);
+        refreshCartSummary();
+
+        Alert alert = new Alert(Alert.AlertType.INFORMATION, media.getTitle() + " has been added to the cart.");
+        alert.setHeaderText(null);
+        alert.showAndWait();
     }
 
     private List<Media> filterAndSortMedia() {
         String query = searchField == null ? "" : searchField.getText().trim().toLowerCase();
-        String selectedType = typeFilter == null ? "All types" : (String) typeFilter.getSelectedItem();
-        String selectedSort = sortBox == null ? "Title A-Z" : (String) sortBox.getSelectedItem();
+        String selectedType = typeFilter == null ? "All types" : typeFilter.getSelectionModel().getSelectedItem();
+        String selectedSort = sortBox == null ? "Title A-Z" : sortBox.getSelectionModel().getSelectedItem();
 
         List<Media> result = new ArrayList<Media>();
         for (Media media : store.getItemsInStore()) {
@@ -191,5 +285,27 @@ public class StoreScreen extends JFrame {
             cartSummaryLabel.setText(String.format("Cart: %d item(s) | %.2f $",
                     cart.getItemsOrdered().size(), cart.totalCost()));
         }
+    }
+
+    private Button primaryButton(String text) {
+        Button button = new Button(text);
+        button.setStyle(STYLE_PRIMARY_BUTTON);
+        button.setPadding(new Insets(8, 16, 8, 16));
+        return button;
+    }
+
+    private Button purpleButton(String text) {
+        Button button = new Button(text);
+        button.setStyle(STYLE_PURPLE_BUTTON);
+        button.setPadding(new Insets(8, 16, 8, 16));
+        return button;
+    }
+
+    @SuppressWarnings("unused")
+    private Button secondaryButton(String text) {
+        Button button = new Button(text);
+        button.setStyle(STYLE_SECONDARY_BUTTON);
+        button.setPadding(new Insets(8, 14, 8, 14));
+        return button;
     }
 }
