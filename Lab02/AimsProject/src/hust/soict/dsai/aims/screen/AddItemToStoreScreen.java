@@ -32,21 +32,21 @@ public abstract class AddItemToStoreScreen extends JFrame {
         this.store = store;
         this.cart = cart;
 
-        setTitle("Thêm " + itemName);
+        setTitle("Add " + itemName);
         setJMenuBar(AimsScreenNavigator.createMenuBar(this, store, cart));
         setLayout(new BorderLayout());
 
         formPanel.setBorder(BorderFactory.createEmptyBorder(24, 24, 24, 24));
-        tfTitle = addField("Tiêu đề");
-        tfCategory = addField("Thể loại");
-        tfCost = addField("Giá");
+        tfTitle = addField("Title");
+        tfCategory = addField("Category");
+        tfCost = addField("Cost");
         add(formPanel, BorderLayout.CENTER);
 
-        JButton submit = new JButton("Thêm " + itemName);
+        JButton submit = new JButton("Add " + itemName);
         submit.addActionListener(e -> submit());
         add(submit, BorderLayout.SOUTH);
 
-        setSize(520, 420);
+        setSize(560, 440);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
@@ -92,13 +92,13 @@ public abstract class AddItemToStoreScreen extends JFrame {
         try {
             Media media = createMedia();
             store.addMedia(media);
-            JOptionPane.showMessageDialog(this, "Đã thêm " + media.getTitle() + " vào cửa hàng.");
+            JOptionPane.showMessageDialog(this, "Added " + media.getTitle() + " to the store.");
             AimsScreenNavigator.openStore(this, store, cart);
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Vui lòng nhập đúng các giá trị số.", "Dữ liệu không hợp lệ",
+            JOptionPane.showMessageDialog(this, "Please enter valid numeric values.", "Invalid data",
                     JOptionPane.ERROR_MESSAGE);
         } catch (IllegalArgumentException e) {
-            JOptionPane.showMessageDialog(this, e.getMessage(), "Dữ liệu không hợp lệ", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Invalid data", JOptionPane.ERROR_MESSAGE);
         }
     }
 

@@ -20,19 +20,19 @@ final class AimsScreenNavigator {
     static JMenuBar createMenuBar(JFrame owner, Store store, Cart cart) {
         JMenuBar menuBar = new JMenuBar();
 
-        JMenu options = new JMenu("Tùy chọn");
-        JMenuItem viewStore = new JMenuItem("Xem cửa hàng");
+        JMenu options = new JMenu("Options");
+        JMenuItem viewStore = new JMenuItem("View store");
         viewStore.addActionListener(e -> openStore(owner, store, cart));
 
-        JMenuItem viewCart = new JMenuItem("Xem giỏ hàng");
+        JMenuItem viewCart = new JMenuItem("View cart");
         viewCart.addActionListener(e -> openCart(owner, store, cart));
 
-        JMenu updateStore = new JMenu("Cập nhật cửa hàng");
-        JMenuItem addBook = new JMenuItem("Thêm sách");
+        JMenu updateStore = new JMenu("Update store");
+        JMenuItem addBook = new JMenuItem("Add book");
         addBook.addActionListener(e -> openAddBook(owner, store, cart));
-        JMenuItem addCd = new JMenuItem("Thêm CD");
+        JMenuItem addCd = new JMenuItem("Add CD");
         addCd.addActionListener(e -> openAddCd(owner, store, cart));
-        JMenuItem addDvd = new JMenuItem("Thêm DVD");
+        JMenuItem addDvd = new JMenuItem("Add DVD");
         addDvd.addActionListener(e -> openAddDvd(owner, store, cart));
 
         updateStore.add(addBook);
@@ -54,15 +54,15 @@ final class AimsScreenNavigator {
         switchTo(owner, () -> new CartScreen(store, cart));
     }
 
-    private static void openAddBook(JFrame owner, Store store, Cart cart) {
+    static void openAddBook(JFrame owner, Store store, Cart cart) {
         switchTo(owner, () -> new AddBookToStoreScreen(store, cart));
     }
 
-    private static void openAddCd(JFrame owner, Store store, Cart cart) {
+    static void openAddCd(JFrame owner, Store store, Cart cart) {
         switchTo(owner, () -> new AddCompactDiscToStoreScreen(store, cart));
     }
 
-    private static void openAddDvd(JFrame owner, Store store, Cart cart) {
+    static void openAddDvd(JFrame owner, Store store, Cart cart) {
         switchTo(owner, () -> new AddDigitalVideoDiscToStoreScreen(store, cart));
     }
 
@@ -78,15 +78,15 @@ final class AimsScreenNavigator {
     static void playMedia(JFrame owner, Media media) {
         SwingUtilities.invokeLater(() -> {
             if (!(media instanceof Playable)) {
-                JOptionPane.showMessageDialog(owner, "Sản phẩm này không thể phát.");
+                JOptionPane.showMessageDialog(owner, "This media cannot be played.");
                 return;
             }
 
             try {
                 ((Playable) media).play();
-                JOptionPane.showMessageDialog(owner, "Đang phát: " + media.getTitle());
+                JOptionPane.showMessageDialog(owner, "Playing: " + media.getTitle());
             } catch (PlayerException e) {
-                JOptionPane.showMessageDialog(owner, e.getMessage(), "Lỗi phát media", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(owner, e.getMessage(), "Play error", JOptionPane.ERROR_MESSAGE);
                 e.printStackTrace();
             }
         });

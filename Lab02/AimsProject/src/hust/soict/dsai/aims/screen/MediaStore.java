@@ -44,7 +44,7 @@ public class MediaStore extends JPanel {
         title.setFont(new Font("Segoe UI", Font.BOLD, 16));
         title.setForeground(AimsUi.TEXT);
 
-        JLabel category = new JLabel(media.getCategory() == null ? "Chưa có thể loại" : media.getCategory());
+        JLabel category = new JLabel(media.getCategory() == null ? "No category" : media.getCategory());
         category.setForeground(AimsUi.MUTED);
 
         JLabel cost = new JLabel(String.format("%.2f $", media.getCost()), SwingConstants.LEFT);
@@ -60,14 +60,15 @@ public class MediaStore extends JPanel {
 
         JPanel buttons = new JPanel(new FlowLayout(FlowLayout.CENTER));
         buttons.setOpaque(false);
-        JButton addToCart = AimsUi.button("Thêm vào giỏ", AimsUi.PRIMARY);
+
+        JButton addToCart = AimsUi.button("Add to cart", AimsUi.PRIMARY);
         addToCart.addActionListener(e -> addMediaToCart());
         buttons.add(addToCart);
 
         if (media instanceof Playable) {
-            JButton play = AimsUi.button("Phát", new Color(102, 16, 242));
-            play.addActionListener(e -> AimsScreenNavigator.playMedia((JFrame) javax.swing.SwingUtilities
-                    .getWindowAncestor(this), media));
+            JButton play = AimsUi.button("Play", new Color(102, 16, 242));
+            play.addActionListener(e -> AimsScreenNavigator.playMedia(
+                    (JFrame) javax.swing.SwingUtilities.getWindowAncestor(this), media));
             buttons.add(play);
         }
 
@@ -80,12 +81,12 @@ public class MediaStore extends JPanel {
         if (onCartChanged != null) {
             onCartChanged.run();
         }
-        JOptionPane.showMessageDialog(this, "Đã thêm " + media.getTitle() + " vào giỏ hàng.");
+        JOptionPane.showMessageDialog(this, "Added " + media.getTitle() + " to cart.");
     }
 
     private String getDisplayType(Media media) {
         if (media instanceof hust.soict.dsai.aims.media.Book) {
-            return "Sách";
+            return "Book";
         }
         if (media instanceof hust.soict.dsai.aims.media.CompactDisc) {
             return "CD";

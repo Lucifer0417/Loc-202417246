@@ -9,8 +9,8 @@ public class AddBookToStoreScreen extends AddItemToStoreScreen {
     private final javax.swing.JTextField tfAuthors;
 
     public AddBookToStoreScreen(Store store, Cart cart) {
-        super(store, cart, "sách");
-        tfAuthors = addField("Tác giả (cách nhau bằng dấu phẩy)");
+        super(store, cart, "book");
+        tfAuthors = addField("Authors (comma-separated)");
         showScreen();
     }
 

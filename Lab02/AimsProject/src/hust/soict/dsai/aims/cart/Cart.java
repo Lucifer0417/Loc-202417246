@@ -1,16 +1,12 @@
 package hust.soict.dsai.aims.cart;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import hust.soict.dsai.aims.media.Media;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 public class Cart {
-    // Dung ArrayList de chua cac loai Media (Book, DVD, CD...) linh hoat hon Mang (Array)
-    private ArrayList<Media> itemsOrdered = new ArrayList<Media>();
+    private final ObservableList<Media> itemsOrdered = FXCollections.observableArrayList();
 
-    // Them Media vao gio hang
     public void addMedia(Media media) {
         if (!itemsOrdered.contains(media)) {
             itemsOrdered.add(media);
@@ -20,11 +16,10 @@ public class Cart {
         }
     }
 
-    public List<Media> getItemsOrdered() {
-        return Collections.unmodifiableList(itemsOrdered);
+    public ObservableList<Media> getItemsOrdered() {
+        return itemsOrdered;
     }
 
-    // Xoa Media khoi gio hang
     public void removeMedia(Media media) {
         if (itemsOrdered.contains(media)) {
             itemsOrdered.remove(media);
@@ -34,7 +29,6 @@ public class Cart {
         }
     }
 
-    // Tinh tong tien
     public float totalCost() {
         float total = 0;
         for (Media media : itemsOrdered) {
@@ -43,7 +37,6 @@ public class Cart {
         return total;
     }
 
-    // In danh sach gio hang
     public void print() {
         System.out.println("***********************CART***********************");
         System.out.println("Ordered Items:");
@@ -54,7 +47,6 @@ public class Cart {
         System.out.println("***************************************************");
     }
 
-    // Tim kiem theo ID
     public void searchById(int id) {
         boolean found = false;
         for (Media media : itemsOrdered) {
@@ -69,12 +61,9 @@ public class Cart {
         }
     }
 
-    // Tim kiem theo Tieu de
     public void searchByTitle(String title) {
         boolean found = false;
         for (Media media : itemsOrdered) {
-            // Chu y: Vi phuong thuc isMatch() chua duoc dinh nghia trong Media,
-            // ta tam thoi kiem tra chuoi (contains) truc tiep o day
             if (media.getTitle().toLowerCase().contains(title.toLowerCase())) {
                 System.out.println("Found match: " + media.toString());
                 found = true;
@@ -84,18 +73,16 @@ public class Cart {
             System.out.println("No match found for Title: " + title);
         }
     }
-    // Lam sach gio hang sau khi dat hang
+
     public void empty() {
         itemsOrdered.clear();
     }
 
-    // Sap xep theo Tieu de roi den Gia
     public void sortByTitleCost() {
         java.util.Collections.sort(itemsOrdered, Media.COMPARE_BY_TITLE_COST);
         System.out.println("Cart sorted by Title then Cost.");
     }
 
-    // Sap xep theo Gia roi den Tieu de
     public void sortByCostTitle() {
         java.util.Collections.sort(itemsOrdered, Media.COMPARE_BY_COST_TITLE);
         System.out.println("Cart sorted by Cost then Title.");
