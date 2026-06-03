@@ -71,7 +71,6 @@ Lab05/GUIProject/src/hust/soict/dsai/javafx/Painter.fxml
 ```text
 Lab05/answers.txt
 Lab02/Design/AIMS_Class.png
-Lab02/Requirement/AIMS_Lab05_GUI_UseCase.png
 Lab02/Design/AIMS_Lab05_GUI_Class_Overview.png
 Lab02/Design/AIMS_Exception_Hierarchy.png
 ```
@@ -200,3 +199,4 @@ GUIProject compile with JavaFX module path: passed
 cart.fxml XML parse: passed
 Painter.fxml XML parse: passed
 ```
+
