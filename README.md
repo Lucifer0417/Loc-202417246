@@ -71,8 +71,9 @@ Lab05/GUIProject/src/hust/soict/dsai/javafx/Painter.fxml
 ```text
 Lab05/answers.txt
 Lab02/Design/AIMS_Class.png
-Lab02/Design/AIMS_Lab05_GUI_Class_Overview.png
-Lab02/Design/AIMS_Exception_Hierarchy.png
+Lab02/Design/AIMS_Class.astah.asta
+Lab02/Design/AIMS_Lab05_Astah_Class_Diagram.png
+Lab02/Design/AIMS_Lab05_Astah_Exception_Hierarchy.png
 ```
 
 ## Requirements
